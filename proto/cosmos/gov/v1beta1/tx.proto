@@ -39,6 +39,7 @@ message MsgSubmitProposal {
     (gogoproto.moretags)     = "yaml:\"initial_deposit\""
   ];
   string proposer = 3;
+  repeated google.protobuf.Any messages = 4;
 }
 
 // MsgSubmitProposalResponse defines the Msg/SubmitProposal response type.

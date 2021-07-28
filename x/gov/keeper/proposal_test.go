@@ -12,7 +12,7 @@ import (
 
 func (suite *KeeperTestSuite) TestGetSetProposal() {
 	tp := TestProposal
-	proposal, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tp)
+	proposal, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tp, []sdk.Msg{})
 	suite.Require().NoError(err)
 	proposalID := proposal.ProposalId
 	suite.app.GovKeeper.SetProposal(suite.ctx, proposal)
@@ -24,7 +24,7 @@ func (suite *KeeperTestSuite) TestGetSetProposal() {
 
 func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 	tp := TestProposal
-	proposal, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tp)
+	proposal, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tp, []sdk.Msg{})
 	suite.Require().NoError(err)
 
 	suite.Require().True(proposal.VotingStartTime.Equal(time.Time{}))
@@ -64,7 +64,7 @@ func (suite *KeeperTestSuite) TestSubmitProposal() {
 	}
 
 	for i, tc := range testCases {
-		_, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tc.content)
+		_, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tc.content, []sdk.Msg{})
 		suite.Require().True(errors.Is(tc.expectedErr, err), "tc #%d; got: %v, expected: %v", i, err, tc.expectedErr)
 	}
 }
@@ -77,7 +77,7 @@ func (suite *KeeperTestSuite) TestGetProposalsFiltered() {
 
 	for _, s := range status {
 		for i := 0; i < 50; i++ {
-			p, err := types.NewProposal(TestProposal, proposalID, time.Now(), time.Now())
+			p, err := types.NewProposal(TestProposal, []sdk.Msg{}, proposalID, time.Now(), time.Now())
 			suite.Require().NoError(err)
 
 			p.Status = s

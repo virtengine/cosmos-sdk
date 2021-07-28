@@ -27,15 +27,28 @@ var (
 
 // NewMsgSubmitProposal creates a new MsgSubmitProposal.
 //nolint:interfacer
-func NewMsgSubmitProposal(content Content, initialDeposit sdk.Coins, proposer sdk.AccAddress) (*MsgSubmitProposal, error) {
+func NewMsgSubmitProposal(content Content, initialDeposit sdk.Coins, proposer sdk.AccAddress, messages []sdk.Msg) (*MsgSubmitProposal, error) {
+	msgsAny := make([]*types.Any, len(messages))
+	for i, msg := range messages {
+		any, err := types.NewAnyWithValue(msg)
+		if err != nil {
+			return &MsgSubmitProposal{}, err
+		}
+
+		msgsAny[i] = any
+	}
+
 	m := &MsgSubmitProposal{
+		Messages:       msgsAny,
 		InitialDeposit: initialDeposit,
 		Proposer:       proposer.String(),
 	}
+
 	err := m.SetContent(content)
 	if err != nil {
 		return nil, err
 	}
+
 	return m, nil
 }
 
@@ -44,6 +57,19 @@ func (m *MsgSubmitProposal) GetInitialDeposit() sdk.Coins { return m.InitialDepo
 func (m *MsgSubmitProposal) GetProposer() sdk.AccAddress {
 	proposer, _ := sdk.AccAddressFromBech32(m.Proposer)
 	return proposer
+}
+
+func (m *MsgSubmitProposal) GetMessages() ([]sdk.Msg, error) {
+	msgs := make([]sdk.Msg, len(m.Messages))
+	for i, msgAny := range m.Messages {
+		msg, ok := msgAny.GetCachedValue().(sdk.Msg)
+		if !ok {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "messages contains %T which is not a sdk.Msg", msgAny)
+		}
+		msgs[i] = msg
+	}
+
+	return msgs, nil
 }
 
 func (m *MsgSubmitProposal) GetContent() Content {
@@ -83,7 +109,7 @@ func (m MsgSubmitProposal) Type() string { return TypeMsgSubmitProposal }
 
 // ValidateBasic implements Msg
 func (m MsgSubmitProposal) ValidateBasic() error {
-	if m.Proposer == "" {
+	if _, err := sdk.AccAddressFromBech32(m.Proposer); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, m.Proposer)
 	}
 	if !m.InitialDeposit.IsValid() {
@@ -91,6 +117,15 @@ func (m MsgSubmitProposal) ValidateBasic() error {
 	}
 	if m.InitialDeposit.IsAnyNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.InitialDeposit.String())
+	}
+
+	// TODO: Don't allow empty messages
+	// if m.Messages == nil || len(m.Messages) == 0 {
+	// 	return ErrNoProposalMsgs
+	// }
+
+	if _, err := m.GetMessages(); err != nil {
+		return err
 	}
 
 	content := m.GetContent()
