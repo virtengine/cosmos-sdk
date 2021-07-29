@@ -16,10 +16,16 @@ func (keeper Keeper) SubmitProposal(
 	messages []sdk.Msg,
 ) (types.Proposal, error) {
 
-	// Loop through all messages and confirm that each has a handler
+	// Loop through all messages and confirm that each has a handler and the gov module account
+	// as the only signer
 	for _, msg := range messages {
-		if msg.GetSigners()[0] != keeper.GetGovernanceAccount(ctx).String() {
-			return types.Proposal{}, sdkerrors.Wrap(types.ErrInvalidSigner, msg.GetSigners()[0])
+		signers := msg.GetSigners()
+		if len(signers) != 1 {
+			return types.Proposal{}, types.ErrInvalidSigner
+		}
+
+		if signers[0] != keeper.GetGovernanceAccount(ctx).GetAddress().String() {
+			return types.Proposal{}, sdkerrors.Wrap(types.ErrInvalidSigner, signers[0])
 		}
 
 		if keeper.router.Handler(msg) == nil {

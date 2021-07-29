@@ -30,11 +30,14 @@ var (
 func NewMsgSubmitProposal(content Content, initialDeposit sdk.Coins, proposer sdk.AccAddress, messages []sdk.Msg) (*MsgSubmitProposal, error) {
 	msgsAny := make([]*types.Any, len(messages))
 	for i, msg := range messages {
-		any, err := types.NewAnyWithValue(msg)
-		if err != nil {
-			return &MsgSubmitProposal{}, err
+		m, ok := msg.(proto.Message)
+		if !ok {
+			return nil, fmt.Errorf("can't proto marshal %T", msg)
 		}
-
+		any, err := types.NewAnyWithValue(m)
+		if err != nil {
+			return nil, err
+		}
 		msgsAny[i] = any
 	}
 
@@ -119,10 +122,10 @@ func (m MsgSubmitProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.InitialDeposit.String())
 	}
 
-	// TODO: Don't allow empty messages
-	// if m.Messages == nil || len(m.Messages) == 0 {
-	// 	return ErrNoProposalMsgs
-	// }
+	// Empty messages are not allowed
+	if m.Messages == nil || len(m.Messages) == 0 {
+		return ErrNoProposalMsgs
+	}
 
 	if _, err := m.GetMessages(); err != nil {
 		return err

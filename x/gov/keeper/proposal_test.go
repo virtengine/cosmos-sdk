@@ -44,27 +44,57 @@ func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 	activeIterator.Close()
 }
 
-type invalidProposalRoute struct{ types.TextProposal }
+var _ sdk.Msg = &testProposalMsg{}
 
-func (invalidProposalRoute) ProposalRoute() string { return "nonexistingroute" }
+type testProposalMsg struct {
+	signer string
+}
+
+func newTestProposalMsg(signer string) *testProposalMsg {
+	return &testProposalMsg{signer: signer}
+}
+
+func (msg *testProposalMsg) ValidateBasic() error { return nil }
+
+func (msg *testProposalMsg) GetSigners() []string {
+	return []string{msg.signer}
+}
+
+func (msg *testProposalMsg) String() string { return "testProposalMsg" }
+
+func (msg *testProposalMsg) Reset() {}
+
+func (msg *testProposalMsg) ProtoMessage() {}
+
+func (msg *testProposalMsg) Route() string {
+	return "invalidroute"
+}
 
 func (suite *KeeperTestSuite) TestSubmitProposal() {
+	govAccount := suite.app.GovKeeper.GetGovernanceAccount(suite.ctx)
+	// Proposal is for the gov module to vote on another proposal :)
+	voteProposal := []sdk.Msg{types.NewMsgVote(govAccount.GetAddress(), 0, types.OptionYes)}
+	invalidAddressProposal := []sdk.Msg{newTestProposalMsg("invalidAddrs")}
+	invalidRouteProposal := []sdk.Msg{newTestProposalMsg(govAccount.GetAddress().String())}
+
 	testCases := []struct {
 		content     types.Content
+		messages    []sdk.Msg
 		expectedErr error
 	}{
-		{&types.TextProposal{Title: "title", Description: "description"}, nil},
+		{&types.TextProposal{Title: "title", Description: "description"}, voteProposal, nil},
 		// Keeper does not check the validity of title and description, no error
-		{&types.TextProposal{Title: "", Description: "description"}, nil},
-		{&types.TextProposal{Title: strings.Repeat("1234567890", 100), Description: "description"}, nil},
-		{&types.TextProposal{Title: "title", Description: ""}, nil},
-		{&types.TextProposal{Title: "title", Description: strings.Repeat("1234567890", 1000)}, nil},
-		// error only when invalid route
-		{&invalidProposalRoute{}, types.ErrNoProposalHandlerExists},
+		{&types.TextProposal{Title: "", Description: "description"}, voteProposal, nil},
+		{&types.TextProposal{Title: strings.Repeat("1234567890", 100), Description: "description"}, voteProposal, nil},
+		{&types.TextProposal{Title: "title", Description: ""}, voteProposal, nil},
+		{&types.TextProposal{Title: "title", Description: strings.Repeat("1234567890", 1000)}, voteProposal, nil},
+		// TODO: add errors for empty messages and messages with invalid routes
+		{&types.TextProposal{Title: "title", Description: "description"}, invalidAddressProposal, types.ErrInvalidSigner},
+		{&types.TextProposal{Title: "title", Description: "description"}, invalidRouteProposal, types.ErrUnroutableProposalMsg},
 	}
 
 	for i, tc := range testCases {
-		_, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tc.content, []sdk.Msg{})
+		_, err := suite.app.GovKeeper.SubmitProposal(suite.ctx, tc.content, tc.messages)
 		suite.Require().True(errors.Is(tc.expectedErr, err), "tc #%d; got: %v, expected: %v", i, err, tc.expectedErr)
 	}
 }

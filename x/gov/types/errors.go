@@ -16,6 +16,5 @@ var (
 	ErrNoProposalHandlerExists = sdkerrors.Register(ModuleName, 9, "no handler exists for proposal type")
 	ErrUnroutableProposalMsg   = sdkerrors.Register(ModuleName, 10, "proposal message has no handler")
 	ErrNoProposalMsgs          = sdkerrors.Register(ModuleName, 11, "no messages proposed")
-	ErrInvalidSignalMsg        = sdkerrors.Register(ModuleName, 12, "invalid signal message")
-	ErrInvalidSigner           = sdkerrors.Register(ModuleName, 13, "invalid signer to proposal message")
+	ErrInvalidSigner           = sdkerrors.Register(ModuleName, 12, "expected gov account as only signer for proposal message")
 )

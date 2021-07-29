@@ -26,7 +26,11 @@ func NewProposal(
 
 	msgsAny := make([]*types.Any, len(messages))
 	for i, msg := range messages {
-		any, err := types.NewAnyWithValue(msg)
+		m, ok := msg.(proto.Message)
+		if !ok {
+			return Proposal{}, fmt.Errorf("can't proto marshal %T", msg)
+		}
+		any, err := types.NewAnyWithValue(m)
 		if err != nil {
 			return Proposal{}, err
 		}
@@ -112,6 +116,14 @@ func (p Proposal) GetMessages() ([]sdk.Msg, error) {
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (p Proposal) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var msg sdk.Msg
+	for _, m := range p.Messages {
+		err := unpacker.UnpackAny(m, &msg)
+		if err != nil {
+			return err
+		}
+	}
+
 	var content Content
 	return unpacker.UnpackAny(p.Content, &content)
 }

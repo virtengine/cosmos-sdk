@@ -42,12 +42,14 @@ func TestMsgSubmitProposal(t *testing.T) {
 		{"Test Proposal", strings.Repeat("#", MaxDescriptionLength*2), ProposalTypeText, addrs[0], coinsMulti, false},
 	}
 
+	proposalMsgs := []sdk.Msg{NewMsgVote(addrs[0], 0, OptionYes)}
+
 	for i, tc := range tests {
 		msg, err := NewMsgSubmitProposal(
 			ContentFromProposalType(tc.title, tc.description, tc.proposalType),
 			tc.initialDeposit,
 			tc.proposerAddr,
-			[]sdk.Msg{},
+			proposalMsgs,
 		)
 
 		require.NoError(t, err)
