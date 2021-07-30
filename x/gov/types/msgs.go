@@ -164,6 +164,14 @@ func (m MsgSubmitProposal) String() string {
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (m MsgSubmitProposal) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var msg sdk.Msg
+	for _, m := range m.Messages {
+		err := unpacker.UnpackAny(m, &msg)
+		if err != nil {
+			return err
+		}
+	}
+
 	var content Content
 	return unpacker.UnpackAny(m.Content, &content)
 }

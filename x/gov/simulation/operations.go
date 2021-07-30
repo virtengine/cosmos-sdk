@@ -137,7 +137,8 @@ func SimulateMsgSubmitProposal(
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSubmitProposal, "unable to generate deposit"), nil, err
 		}
 
-		proposalMsg := []sdk.Msg{types.NewMsgVote(simAccount.Address, 0, types.OptionYes)}
+		govAccount := k.GetGovernanceAccount(ctx).GetAddress()
+		proposalMsg := []sdk.Msg{types.NewMsgVote(govAccount, 0, types.OptionYes)}
 		msg, err := types.NewMsgSubmitProposal(content, deposit, simAccount.Address, proposalMsg)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to generate a submit proposal msg"), nil, err
