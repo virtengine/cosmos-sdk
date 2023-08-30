@@ -9,8 +9,10 @@ require (
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/api v0.44.0 // indirect
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
+
+require github.com/rs/zerolog v1.25.0
 
 require (
 	cloud.google.com/go v0.81.0 // indirect
@@ -28,7 +30,6 @@ require (
 	github.com/mitchellh/go-homedir v1.0.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rs/zerolog v1.25.0 // indirect
 	github.com/ulikunitz/xz v0.5.5 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
