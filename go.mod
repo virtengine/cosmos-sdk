@@ -181,7 +181,7 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	github.com/cometbft/cometbft => github.com/akash-network/cometbft v0.38.21-akash.1
+	github.com/cometbft/cometbft => github.com/virtengine/cometbft v0.38.21-virtengine.1
 
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
@@ -195,7 +195,7 @@ replace (
 
 retract (
 	// build error
-	v0.53.4-akash.9
+	v0.53.4-akash.9 // retracted by akash
 
 	// incorrect tag for patch version
 	v0.53.1
