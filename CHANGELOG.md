@@ -36,6 +36,70 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v0.53.8](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.8) - 2026-07-27
+
+### Improvements
+
+* chore(x/auth) [#26567](https://github.com/cosmos/cosmos-sdk/pull/26567): add a human-readable error
+
+### Bug Fixes
+
+* (x/distribution) [#26518](https://github.com/cosmos/cosmos-sdk/pull/26518) Return an error from internal historical rewards reads when the record is absent instead of silently decoding it as zero, preventing incorrect reward calculations on inconsistent state.
+* (x/auth) [#26515](https://github.com/cosmos/cosmos-sdk/pull/26515) Bound the pubkey and signature indices in `ConsumeMultisignatureVerificationGas` and `VerifyMultisignature` so a multisig signature with a bit array larger than the key set, or with more set bits than supplied signatures, returns an error instead of panicking with index out of range.
+* (x/distribution) [#26406](https://github.com/cosmos/cosmos-sdk/pull/26406) Add fallback paths (delegator/validator owner, then community pool) when withdrawing delegator rewards or validator commission to a blocked address during `Begin/EndBlockers`. user msg initiated paths still return `ErrUnauthorized` when withdrawing to blocked addresses.
+* (x/staking) [#26408](https://github.com/cosmos/cosmos-sdk/pull/26408) Fix `MsgBeginRedelegate` failure when redelegating all shares from an unbonded source validator that is removed after unbonding.
+* (store) [#25841](https://github.com/cosmos/cosmos-sdk/pull/25841) Isolate the `traceContext` map across branched stores in `cachemulti`, fixing a concurrent map write race when branched stores are used across goroutines.
+* (x/auth/ante) [#26573](https://github.com/cosmos/cosmos-sdk/pull/26573) Reject tx with extra SignerInfos in SetPubKeyDecorator.
+* (x/auth/tx) [#26517](https://github.com/cosmos/cosmos-sdk/pull/26517) Return a decode error instead of panicking when a transaction's `SignerInfos` and `Signatures` counts disagree in `GetSignaturesV2`, or a multisig's `ModeInfos` and sub-signature counts disagree in `ModeInfoAndSigToSignatureData`.
+* (x/auth/tx) [#26527](https://github.com/cosmos/cosmos-sdk/pull/26527) Fix nil pointer panic in `GetSigningTxData` when a `SignerInfo` has a nil `PublicKey`.
+* (x/auth/tx) [#26571](https://github.com/cosmos/cosmos-sdk/pull/26571) Avoid nil pointer panic in `GetSigningTxData` for multisig `ModeInfo` with a nil `Multi` or nil `Bitarray`.
+* (crypto) [#26529](https://github.com/cosmos/cosmos-sdk/pull/26529) Validate the SEC1 tag byte (`0x02`/`0x03`) when unmarshaling a `secp256k1.PubKey`, rejecting malformed compressed keys that previously passed the length-only check.
+* (crypto) [#26509](https://github.com/cosmos/cosmos-sdk/pull/26509) Bound compact bit array index by elems length to avoid out-of-range panics on malformed input.
+
+## [v0.53.7](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.7) - 2026-04-14
+
+### Improvements
+
+* (x/auth) [#26297](https://github.com/cosmos/cosmos-sdk/pull/26297) Cap pagination limit at number of txs within block during `GetBlockWithTxs` instead of 100.
+
+## [v0.53.6](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.6) - 2026-02-10
+
+### Improvements
+
+* (deps) [#25710](https://github.com/cosmos/cosmos-sdk/pull/25710) Bump github.com/cosmos/ledger-cosmos-go from 0.16.0 to 1.0.0
+* (deps) [#25820](https://github.com/cosmos/cosmos-sdk/pull/25820) Bump github.com/cometbft/cometbft from 0.80.20 to 0.38.21
+
+### Bug Fixes
+
+* (x/auth) [#25871](https://github.com/cosmos/cosmos-sdk/pull/25871) Limits pagination at default for values that exceed it.
+* (events) [#25881](https://github.com/cosmos/cosmos-sdk/pull/25881) Add `OverrideEvents` to `EventManagerI`.
+
+## [v0.53.5](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.5) - 2025-12-12
+
+### Features
+
+* (crypto/ledger) [#25435](https://github.com/cosmos/cosmos-sdk/pull/25435) Add SetDERConversion to reset skipDERConversion and App name for ledger.
+* (gRPC) [#25565](https://github.com/cosmos/cosmos-sdk/pull/25565) Support for multi gRPC query clients serve with historical binaries to serve proper historical state.
+* (blockstm) [#25600](https://github.com/cosmos/cosmos-sdk/pull/25600) Allow dynamic retrieval of the coin denomination from multi store at runtime.
+* [#25516](https://github.com/cosmos/cosmos-sdk/pull/25516) Support automatic configuration of OpenTelemetry via [OpenTelemetry declarative configuration](https://pkg.go.dev/go.opentelemetry.io/contrib/otelconf) and add OpenTelemetry instrumentation of `BaseApp`.
+
+### Improvements
+
+* (x/mint) [#25562](https://github.com/cosmos/cosmos-sdk/pull/25562) Improve and test `x/mint` params validation.
+* (server) [#25632](https://github.com/cosmos/cosmos-sdk/pull/25632) Add missing call to close the app on shutdown.
+
+### Bug Fixes
+
+* (cli) [#25485](https://github.com/cosmos/cosmos-sdk/pull/25485) Avoid failed to convert address field in `withdraw-validator-commission` cmd.
+* (baseapp) [#25642](https://github.com/cosmos/cosmos-sdk/pull/25642) Mark pre-block events for indexing based on local configuration.
+
+### Deprecated
+
+* (x/nft) [#24575](https://github.com/cosmos/cosmos-sdk/pull/24575) Deprecate the `x/nft` module in the Cosmos SDK repository.  This module will not be maintained to the extent that our core modules will and will be kept in a [legacy repo](https://github.com/cosmos/cosmos-legacy).
+* (x/group) [#24571](https://github.com/cosmos/cosmos-sdk/pull/24571) Deprecate the `x/group` module in the Cosmos SDK repository.  This module will not be maintained to the extent that our core modules will and will be kept in a [legacy repo](https://github.com/cosmos/cosmos-legacy).
+* (types) [#24664](https://github.com/cosmos/cosmos-sdk/pull/24664) Deprecate the `Invariant` type in the Cosmos SDK.
+* [#25516](https://github.com/cosmos/cosmos-sdk/pull/25516) Deprecate all existing methods and types in the `telemetry` package, usage of `github.com/hashicorp/go-metrics` and the `telemetry` configuration section. New instrumentation should use the official [OpenTelemetry go API](https://pkg.go.dev/go.opentelemetry.io/otel) and Cosmos SDK appllications can automatically expose OpenTelemetry metrics, traces and logs via [OpenTelemetry declarative configuration](https://pkg.go.dev/go.opentelemetry.io/contrib/otelconf).
+
 ## [v0.53.4](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.3) - 2025-07-25
 
 This patch update also includes minor dependency bumps.
