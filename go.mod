@@ -72,11 +72,12 @@ require (
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cockroachdb/fifo v0.0.0-20240606204812-0bbfbd93a7ce // indirect
 	github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506 // indirect
 	github.com/cockroachdb/pebble v1.1.5 // indirect
@@ -180,6 +181,13 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+
+	// sonic v1.13.2 (the version resolved by the module graph) does not compile on
+	// Go >= 1.24: it references runtime.GoMapIterator, which no longer exists.
+	// Pin the first release with a Go 1.24-compatible runtime/rt (v1.14.1) so the
+	// SDK can be built and tested standalone. virtengine/virtengine carries the
+	// same replace; upstream v0.53.8 raises the requirement instead (see t_dce69b94).
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.1
 
 	github.com/cometbft/cometbft => github.com/virtengine/cometbft v0.38.21-virtengine.1
 

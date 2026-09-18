@@ -72,8 +72,8 @@ func TestDecodePaginationKey(t *testing.T) {
 			wantErr:    false,
 		},
 		{
-			name:        "invalid key type",
-			key:         func() []byte {
+			name: "invalid key type",
+			key: func() []byte {
 				// Manually construct a key with invalid type (3 instead of 1 or 2)
 				data := []byte{3, 3, 'a', 'b', 'c'}
 				checksum := crc32.ChecksumIEEE(data)
@@ -86,8 +86,8 @@ func TestDecodePaginationKey(t *testing.T) {
 			errContains: "invalid key type",
 		},
 		{
-			name:        "truncated key - missing length byte",
-			key:         func() []byte {
+			name: "truncated key - missing length byte",
+			key: func() []byte {
 				data := []byte{1} // type without length
 				checksum := crc32.ChecksumIEEE(data)
 				buf := make([]byte, 4+len(data))
@@ -99,8 +99,8 @@ func TestDecodePaginationKey(t *testing.T) {
 			errContains: "invalid key length",
 		},
 		{
-			name:        "truncated key - declared length exceeds actual length",
-			key:         func() []byte {
+			name: "truncated key - declared length exceeds actual length",
+			key: func() []byte {
 				data := []byte{1, 10, 'a', 'b'} // declares length 10 but only has 2 bytes
 				checksum := crc32.ChecksumIEEE(data)
 				buf := make([]byte, 4+len(data))
