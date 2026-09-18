@@ -57,7 +57,7 @@ func startInProcess(cfg Config, val *Validator) error {
 			return node.ChecksummedGenesisDoc{}, err
 		}
 		return node.ChecksummedGenesisDoc{
-			GenesisDoc: genDoc,
+			GenesisDoc:     genDoc,
 			Sha256Checksum: appGenesis.Sha256Checksum,
 		}, nil
 	}
